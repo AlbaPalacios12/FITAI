@@ -4,33 +4,52 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.fitai.ui.theme.FitAITheme
 import com.example.fitai.ui.theme.screens.PantallaBienvenida
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.fitai.ui.theme.screens.Registro
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.firestore
 
 class MainActivity : ComponentActivity() {
-
-    private val db = FirebaseFirestore.getInstance() //para crear la base de datos
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        FirebaseApp.initializeApp(this)
         setContent {
-            MaterialTheme {
-                PantallaBienvenida {
-                    // Aquí puedes hacer algo cuando se pulse "Comenzar"
-                    Log.d("PantallaInicio", "Botón 'Comenzar' pulsado")
+            var pantallaActual by remember { mutableStateOf("bienvenida") }
+
+            when (pantallaActual) {
+                "bienvenida" -> PantallaBienvenida {
+                    pantallaActual = "registro"
                 }
 
+                "registro" -> Registro { datos ->
+                    Firebase.firestore.collection("usuarios")
+                        .add(datos)
+                        .addOnSuccessListener {
+                            Log.d("Firebase", "Usuario guardado")
+                            pantallaActual = "finalizado"
+                        }
+                        .addOnFailureListener {
+                            Log.e("Firebase", "Error", it)
+                        }
+                }
+
+                "finalizado" -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Registro completado correctamente", style = MaterialTheme.typography.headlineSmall)
+                }
             }
         }
     }
