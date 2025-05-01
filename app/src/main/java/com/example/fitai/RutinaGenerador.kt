@@ -1,3 +1,4 @@
+import android.util.Log
 import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.EjercicioRutina
 import com.example.fitai.data.model.RutinaGenerada
@@ -11,9 +12,13 @@ object RutinaGenerador {
         nivel: String,
         pesoUsuario: Int
     ): RutinaGenerada {
+        // Debug: Ver ejercicios antes de filtrar
+        Log.d("GENERADOR", "Ejercicios recibidos: ${ejercicios.size}")
+        Log.d("GENERADOR", "Primer ejercicio: ${ejercicios.firstOrNull()?.nombre} - ${ejercicios.firstOrNull()?.hemisferio}")
+
         // 1º filtro según el enfoque muscular del día
         val porEnfoque = ejercicios.filter { ejercicio ->
-            enfoque == "mixto" || ejercicio.hemisferio == enfoque
+            enfoque.lowercase() == "mixto" || ejercicio.hemisferio == enfoque.lowercase()
         }
 
         //numero estandar de series y repeticiones

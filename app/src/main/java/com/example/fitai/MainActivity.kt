@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     .get()
                     .addOnSuccessListener { result ->
                         ejercicios = result.toObjects(Ejercicio::class.java)
-                        Log.d("Firestore", "Ejercicios cargados correctamente")
+                        Log.d("DEBUG", "Total ejercicios cargados: ${ejercicios.size}")
                     }
             }
 
@@ -103,6 +103,7 @@ class MainActivity : ComponentActivity() {
                             usuario = usuarioRegistrado!!,
                             nombreUsuario = usuarioRegistrado!!.nombre,
                             onRutinaGenerada = { nuevaRutina ->
+                                Log.d("DEBUG", "Ejercicios en rutina: ${nuevaRutina.ejercicios.size}")
                                 rutinaGenerada = nuevaRutina
                                 navController.navigate("rutina")
                             }

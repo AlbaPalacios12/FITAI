@@ -38,8 +38,8 @@ fun Registro (onFinalizar: (Usuario) -> Unit) {
     val opcionesSexo = listOf("Masculino", "Femenino")
     var sexoSeleccionado by remember { mutableStateOf("Masculino") }
 
-    val opcionesEnfoque = listOf("Ambos", "Tren Superior", "Tren Inferior")
-    var enfoqueSeleccionado by remember { mutableStateOf("Ambos") }
+    val opcionesEnfoque = listOf("Mixto", "Superior", "Inferior")
+    var enfoqueSeleccionado by remember { mutableStateOf("Mixto") }
 
     val opcionesNivel = listOf("Principiante", "Intermedio", "Avanzado")
     var nivelSeleccionado by remember { mutableStateOf("Principiante") }
