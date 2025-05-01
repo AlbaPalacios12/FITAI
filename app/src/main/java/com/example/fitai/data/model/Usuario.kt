@@ -5,8 +5,9 @@ data class Usuario(
     val nombre: String = "",
     val edad: Int = 0,
     val sexo: String = "",
-    val peso: Double = 0.0,
-    val altura: Double = 0.0,
+    val peso: Int = 0,
+    val altura: Int = 0,
     val tiempo: Int = 0,
-    val enfoque: String = "" // superior, inferior, ambos
+    val enfoque: String = "", // superior, inferior, ambos
+    val nivel: String = "" // principiante, intermedio, avanzado
 )

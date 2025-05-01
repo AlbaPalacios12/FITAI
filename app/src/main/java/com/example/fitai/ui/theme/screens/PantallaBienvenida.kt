@@ -16,9 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 @Composable
-    fun PantallaBienvenida(onComenzar: () -> Unit) { //para decidir desde el main que va a pasar cuando se pulse el boton
+    fun PantallaBienvenida(navController: NavHostController) { //para decidir desde el main que va a pasar cuando se pulse el boton
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -28,9 +29,9 @@ import androidx.compose.ui.unit.dp
             verticalArrangement = Arrangement.Center
         ) {
             Text("Bienvenido a FitAI", color = Color(0xFFFF3C00), style = MaterialTheme.typography.titleLarge)
-            Text("Confiamos tu proceso", color = Color.White)
+            Text("Confíanos tu proceso", color = Color.White)
             Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = onComenzar, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF3C00))) {
+            Button(onClick = {navController.navigate("registro")}, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF3C00))) {
                 Text("Comenzar", color = Color.White)
             }
         }
