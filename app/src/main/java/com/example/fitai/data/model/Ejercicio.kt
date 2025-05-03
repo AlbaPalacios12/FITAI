@@ -5,6 +5,8 @@ data class Ejercicio (
         val nombre: String = "",
         val hemisferio: String = "",
         val material: String = "",
-        val video: String = ""
+        val video: String = "",
+        val nombre_legible: String = ""
+
 )
 

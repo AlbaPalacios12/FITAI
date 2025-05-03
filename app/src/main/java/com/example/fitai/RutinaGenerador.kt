@@ -12,7 +12,7 @@ object RutinaGenerador {
         nivel: String,
         pesoUsuario: Int
     ): RutinaGenerada {
-        // Debug: Ver ejercicios antes de filtrar
+        // Debug para ver ejercicios antes de filtrar
         Log.d("GENERADOR", "Ejercicios recibidos: ${ejercicios.size}")
         Log.d("GENERADOR", "Primer ejercicio: ${ejercicios.firstOrNull()?.nombre} - ${ejercicios.firstOrNull()?.hemisferio}")
 

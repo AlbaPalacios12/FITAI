@@ -13,10 +13,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.fitai.YouTubePlayer
@@ -25,9 +21,6 @@ import com.example.fitai.extractYouTubeId
 
 @Composable
 fun Rutina(rutina: RutinaGenerada) {
-    // Usamos String? para el ID del video visible
-    var videoVisibleId by remember { mutableStateOf<String?>(null) }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +42,7 @@ fun Rutina(rutina: RutinaGenerada) {
                     modifier = Modifier.padding(16.dp)
                 ) {
                     // Nombre y detalles
-                    Text(ejercicio.ejercicio.nombre, style = MaterialTheme.typography.titleMedium)
+                    Text(ejercicio.ejercicio.nombre_legible, style = MaterialTheme.typography.titleMedium)
                     Text("${ejercicio.series} x ${ejercicio.repeticiones} reps")
 
                     if (ejercicio.cargaKg > 0) {

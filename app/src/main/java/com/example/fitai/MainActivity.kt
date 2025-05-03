@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.fitai.data.model.DiaRutina
 import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
@@ -42,6 +43,8 @@ class MainActivity : ComponentActivity() {
             var usuarioRegistrado by remember { mutableStateOf<Usuario?>(null) }
             var rutinaGenerada by remember { mutableStateOf<RutinaGenerada?>(null) }
             var ejercicios by remember { mutableStateOf<List<Ejercicio>>(emptyList()) }
+            var semana by remember { mutableStateOf<List<DiaRutina>>(emptyList()) }
+
 
             //para cargar los ejercicios desde Firestore al iniciar la app
             LaunchedEffect(Unit) {
@@ -51,6 +54,13 @@ class MainActivity : ComponentActivity() {
                         ejercicios = result.toObjects(Ejercicio::class.java)
                         Log.d("DEBUG", "Total ejercicios cargados: ${ejercicios.size}")
                     }
+            }
+
+            // Generar semana cuando se registre el usuario
+            LaunchedEffect(usuarioRegistrado) {
+                usuarioRegistrado?.let { usuario ->
+                    semana = generarSemanaCompleta(ejercicios, usuario)
+                }
             }
 
             NavHost(navController = navController, startDestination = "bienvenida") {
@@ -106,7 +116,8 @@ class MainActivity : ComponentActivity() {
                                 Log.d("DEBUG", "Ejercicios en rutina: ${nuevaRutina.ejercicios.size}")
                                 rutinaGenerada = nuevaRutina
                                 navController.navigate("rutina")
-                            }
+                            },
+                            rutinaSemanal = semana
                         )
                     }
                 }
