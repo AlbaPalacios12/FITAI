@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,6 +26,7 @@ import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
 import com.example.fitai.ui.theme.screens.PantallaBienvenida
+import com.example.fitai.ui.theme.screens.PantallaFeedback
 import com.example.fitai.ui.theme.screens.PantallaMenu
 import com.example.fitai.ui.theme.screens.Rutina
 import com.google.firebase.Firebase
@@ -44,7 +46,7 @@ class MainActivity : ComponentActivity() {
             var rutinaGenerada by remember { mutableStateOf<RutinaGenerada?>(null) }
             var ejercicios by remember { mutableStateOf<List<Ejercicio>>(emptyList()) }
             var semana by remember { mutableStateOf<List<DiaRutina>>(emptyList()) }
-
+            val ejerciciosHechos = remember { mutableStateMapOf<String, Boolean>() }
 
             //para cargar los ejercicios desde Firestore al iniciar la app
             LaunchedEffect(Unit) {
@@ -76,14 +78,14 @@ class MainActivity : ComponentActivity() {
                             .addOnSuccessListener {
                                 Log.d("Firebase", "Usuario guardado")
                                 usuarioRegistrado = datos
-                                navController.navigate("finalizado") //con esto informaremos que hemos terminado el registro correctamente
+                                navController.navigate("finalizado_registro") //con esto informaremos que hemos terminado el registro correctamente
                             }
                             .addOnFailureListener {
                                 Log.e("Firebase", "Error al guardar usuario", it)
                             }
                     }
                 }
-                composable("finalizado") {
+                composable("finalizado_registro") {
                     // esto ejecutará después de 2 segundos la pantalla menu automaticamente
                     LaunchedEffect(Unit) {
                         delay(2000)
@@ -114,6 +116,12 @@ class MainActivity : ComponentActivity() {
                             nombreUsuario = usuarioRegistrado!!.nombre,
                             onRutinaGenerada = { nuevaRutina ->
                                 Log.d("DEBUG", "Ejercicios en rutina: ${nuevaRutina.ejercicios.size}")
+
+                                // limpiamos el estado anterior al generar nueva rutina
+                                ejerciciosHechos.clear()
+                                nuevaRutina.ejercicios.forEach { ejercicio ->
+                                    ejerciciosHechos[ejercicio.ejercicio.nombre_legible] = false
+                                }
                                 rutinaGenerada = nuevaRutina
                                 navController.navigate("rutina")
                             },
@@ -124,14 +132,47 @@ class MainActivity : ComponentActivity() {
 
                 composable("rutina") {
                     rutinaGenerada?.let { rutina ->
-                        Rutina(rutina)
+                        Rutina(rutina, navController)
                     }
+                }
+                composable("feedback") {
+                    val usuario = usuarioRegistrado ?: return@composable
+                    val rutina = rutinaGenerada ?: return@composable
+
+                    PantallaFeedback(
+                        usuario = usuario,
+                        rutina = rutina,
+                        ejerciciosHechos = ejerciciosHechos,
+                        navController = navController
+                    )
+                    navController.navigate("finalizado_feedback")
+                }
+                composable("finalizado_feedback") {
+                    // esto ejecutará después de 2 segundos la pantalla menu automaticamente
+                    LaunchedEffect(Unit) {
+                        delay(2000)
+                        navController.navigate("menu") {
+                           // popUpTo("registro") // borra las pantallas que hay entre menu y registro
+                            launchSingleTop = true // para no volver a generar otra instancia de la pantalla menu
+                        }
+
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Sensaciones registradas",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                }
                 }
             }
 
         }
         }
-    }
+
 
 
 

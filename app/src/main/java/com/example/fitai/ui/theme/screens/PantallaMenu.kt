@@ -18,7 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.fitai.data.model.DiaRutina
 import com.example.fitai.data.model.Ejercicio
@@ -50,13 +54,11 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
                     text = "Hoy es ${obtenerFechaActual()}",
                     style = MaterialTheme.typography.bodyLarge
                 )
-
-                // Aquí puedes incluir el resumen semanal, la rutina de hoy, etc.
-                // Esto es solo un ejemplo. Puedes crear componentes personalizados.
-
                 Spacer(modifier = Modifier.height(24.dp))
 
+
                 Button(
+
                     onClick = {
                         val rutina = RutinaGenerador.generarRutinaInicial(
                             ejercicios = ejercicios, //lista pasada como parametro
@@ -67,13 +69,16 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
                         )
                         onRutinaGenerada(rutina)
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4C00)) // naranja
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4C00))
                 ) {
-                    Text("COMENZAR ENTRENAMIENTO")
+                    Text("¡Comenzar entrenamiento!", color = Color.White, style = TextStyle(fontSize = 18.sp))
+
                 }
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Entrenamiento semanal",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "Tu entrenamiento semanal",
+                   // style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color(0xFFFF3C00),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
@@ -86,11 +91,11 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
                             Column(Modifier.padding(12.dp)) {
-                                Text(text = dia.dia, style = MaterialTheme.typography.titleMedium)
+                                Text(text = dia.dia, color = Color.White, style = TextStyle(fontWeight = FontWeight.Bold))
 
                                 Text(
                                     text = dia.enfoque?.replaceFirstChar { it.uppercaseChar() } ?: "Descanso",
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = TextStyle(fontStyle = FontStyle.Italic)
                                 )
 
                             }
@@ -102,7 +107,7 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
     }
 }
 
-// Función auxiliar para obtener la fecha
+// fecha actual
 fun obtenerFechaActual(): String {
     val formatter = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
     return formatter.format(Date())

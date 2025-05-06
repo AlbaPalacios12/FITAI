@@ -2,6 +2,7 @@ import android.util.Log
 import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.EjercicioRutina
 import com.example.fitai.data.model.RutinaGenerada
+import java.util.UUID
 
 object RutinaGenerador {
 
@@ -44,6 +45,7 @@ object RutinaGenerador {
         }
 
         return RutinaGenerada(
+            id = UUID.randomUUID().toString(),
             ejercicios = rutina,
             descansoEntreEjercicios = 120 // 2 minutos
         )
