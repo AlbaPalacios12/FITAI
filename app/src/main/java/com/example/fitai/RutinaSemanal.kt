@@ -1,34 +1,24 @@
 package com.example.fitai
 
-import RutinaGenerador
-import com.example.fitai.data.model.DiaRutina
-import com.example.fitai.data.model.Ejercicio
-import com.example.fitai.data.model.Usuario
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.fitai.data.model.GrupoMuscular
+import java.time.LocalDate
 
-fun generarSemanaCompleta(
-    ejercicios: List<Ejercicio>,
-    usuario: Usuario
-): List<DiaRutina> {
-    val dias = listOf("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo")
+val rutinaPlanSemanal = mapOf(
+    1 to GrupoMuscular.PECHO,
+    2 to GrupoMuscular.PIERNA,
+    3 to GrupoMuscular.ESPALDA,
+    4 to null,
+    5 to GrupoMuscular.GLUTEO,
+    6 to GrupoMuscular.HOMBRO,
+    7 to null
+)
+//rutina establecida para la semana
 
-    val enfoqueSemana = when (usuario.enfoque.lowercase()) {
-        "superior" -> listOf("superior", null, "mixto", null, "superior", "inferior", null)
-        "inferior" -> listOf("inferior", null, "mixto", null, "inferior", "superior", null)
-        else ->       listOf("mixto", null, "superior", null, "mixto", "inferior", null)
-    }
-
-    return dias.mapIndexed { index, dia ->
-        val enfoqueDia = enfoqueSemana[index]
-        val rutina = enfoqueDia?.let {
-            RutinaGenerador.generarRutinaInicial(
-                ejercicios = ejercicios,
-                enfoque = it,
-                tiempoDisponible = usuario.tiempo,
-                nivel = usuario.nivel,
-                pesoUsuario = usuario.peso
-            )
-        }
-
-        DiaRutina(dia = dia, enfoque = enfoqueDia, rutina = rutina)
-    }
+@RequiresApi(Build.VERSION_CODES.O)
+fun grupoMuscularDelDia(): GrupoMuscular? {
+    val hoy = LocalDate.now().dayOfWeek.value // sacamos el numero del dia de la semana que corresponde a hoy
+    return rutinaPlanSemanal[hoy] //devolvemos la rutina del grupo muscular correspondiente
 }
+

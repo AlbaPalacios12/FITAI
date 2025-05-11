@@ -1,6 +1,9 @@
 package com.example.fitai.ui.theme.screens
 
 import RutinaGenerador
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,19 +25,26 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import com.example.fitai.data.model.DiaRutina
 import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
+import com.example.fitai.grupoMuscularDelDia
+import com.example.fitai.rutinaPlanSemanal
 import com.example.fitai.ui.theme.FitAITheme
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, usuario: Usuario, nombreUsuario: String, onRutinaGenerada: (RutinaGenerada) -> Unit ,  rutinaSemanal: List<DiaRutina>) {
+fun PantallaMenu(
+    ejercicios: List<Ejercicio>,
+    usuario: Usuario,
+    nombreUsuario: String,
+    onRutinaGenerada: (RutinaGenerada) -> Unit
+) {
     FitAITheme {
         Scaffold { innerPadding ->
             Column(
@@ -56,34 +66,61 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-
+                val grupoHoy = grupoMuscularDelDia()
                 Button(
-
                     onClick = {
-                        val rutina = RutinaGenerador.generarRutinaInicial(
-                            ejercicios = ejercicios, //lista pasada como parametro
-                            enfoque = usuario.enfoque,
-                            tiempoDisponible = usuario.tiempo,
-                            nivel = usuario.nivel,
-                            pesoUsuario = usuario.peso
-                        )
-                        onRutinaGenerada(rutina)
+                        if (grupoHoy != null) {
+                            val rutina = RutinaGenerador.generarRutinaInicial(
+                                ejercicios = ejercicios,
+                                grupoObjetivo = grupoHoy,
+                                tiempoDisponible = usuario.tiempo,
+                                nivel = usuario.nivel,
+                                pesoUsuario = usuario.peso
+                            )
+                            onRutinaGenerada(rutina)
+                            Firebase.firestore.collection("rutina")
+                                .add(mapOf(
+                                    "usuarioId" to usuario.id,
+                                    "rutina_diaria" to rutina
+                                ))
+                                .addOnSuccessListener {
+                                    Log.d("Firebase", "Rutina guardada correctamente")
+                                }
+                                .addOnFailureListener {
+                                    Log.e("Firebase", "Error al guardar la rutina", it)
+                                }
+                        }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4C00))
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF4C00),
+                        disabledContainerColor = Color.Gray.copy(alpha = 0.5f)
+                    ),
+                    enabled = grupoHoy != null
                 ) {
-                    Text("¡Comenzar entrenamiento!", color = Color.White, style = TextStyle(fontSize = 18.sp))
-
+                    Text(
+                        text = if (grupoHoy != null) {
+                            "Comenzar entrenamiento de ${grupoHoy.name.lowercase() } 💪"
+                        } else {
+                            "Hoy toca descansar 😴"
+                        },
+                        color = Color.White,
+                        style = TextStyle(fontStyle = FontStyle.Italic)
+                    )
                 }
+
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "Tu entrenamiento semanal",
-                   // style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = Color(0xFFFF3C00),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
+                val diasSemana = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
                 LazyColumn {
-                    items(rutinaSemanal) { dia ->
+                    items(diasSemana.indices.toList()) { index ->
+                        val nombreDia = diasSemana[index]
+                        val grupo = rutinaPlanSemanal[index + 1]
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -91,13 +128,18 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
                             Column(Modifier.padding(12.dp)) {
-                                Text(text = dia.dia, color = Color.White, style = TextStyle(fontWeight = FontWeight.Bold))
-
                                 Text(
-                                    text = dia.enfoque?.replaceFirstChar { it.uppercaseChar() } ?: "Descanso",
-                                    style = TextStyle(fontStyle = FontStyle.Italic)
+                                    text = nombreDia,
+                                    color = Color.White,
+                                    style = TextStyle(fontWeight = FontWeight.Bold)
                                 )
 
+                                Text(
+                                    text = grupo?.name?.lowercase()
+                                        ?.replaceFirstChar { it.uppercaseChar() }
+                                        ?.let { "Día de $it " } ?: "Descanso",
+                                    style = TextStyle(fontStyle = FontStyle.Italic)
+                                )
                             }
                         }
                     }
@@ -107,7 +149,6 @@ fun PantallaMenu(navController: NavHostController, ejercicios: List<Ejercicio>, 
     }
 }
 
-// fecha actual
 fun obtenerFechaActual(): String {
     val formatter = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
     return formatter.format(Date())

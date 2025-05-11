@@ -47,9 +47,6 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
     val opcionesSexo = listOf("Masculino", "Femenino")
     var sexoSeleccionado by remember { mutableStateOf("Masculino") }
 
-    val opcionesEnfoque = listOf("Mixto", "Superior", "Inferior")
-    var enfoqueSeleccionado by remember { mutableStateOf("Mixto") }
-
     val opcionesNivel = listOf("Principiante", "Intermedio", "Avanzado")
     var nivelSeleccionado by remember { mutableStateOf("Principiante") }
 
@@ -181,24 +178,11 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    "Objetivo de entrenamiento",
+                    "Entrenamiento",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = Color(0xFFFF3C00)
                 )
 
-                Text("Enfoque", color = Color.Black, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
-                opcionesEnfoque.forEach { enfoque ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = enfoqueSeleccionado == enfoque,
-                            onClick = { enfoqueSeleccionado = enfoque },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = Color(0xFFFF3C00)
-                            )
-                        )
-                        Text(enfoque, color = MaterialTheme.colorScheme.onSurface)
-                    }
-                }
 
                 Text("Nivel", color = Color.Black, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
                 opcionesNivel.forEach { nivel ->
@@ -234,7 +218,6 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
                         peso = peso.toInt(),
                         tiempo = tiempo.toInt(),
                         sexo = sexoSeleccionado,
-                        enfoque = enfoqueSeleccionado,
                         nivel = nivelSeleccionado
                     )
                     onFinalizar(usuario)

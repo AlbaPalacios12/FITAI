@@ -7,7 +7,7 @@ data class Usuario(
     val sexo: String = "",
     val peso: Int = 0,
     val tiempo: Int = 0,
-    val enfoque: String = "", // superior, inferior, ambos
+  //  val enfoque: String = "", RECOGER CON FEEDBACK (superior, inferior, mixto)
     val nivel: String = "" // principiante, intermedio, avanzado
 )
 

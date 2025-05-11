@@ -56,10 +56,6 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController) {
             Text("Tu rutina", style =TextStyle(fontSize = 32.sp),
                 color = Color(0xFFFF3C00)
             )
-            Text("Descanso entre series: ${rutina.descansoEntreEjercicios} seg",
-                color = Color.White,
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp))
-
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -126,8 +122,6 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController) {
             Button(
                 onClick = {
                     navController.navigate("feedback")
-                    // Guardamos el estado para que no se pierda
-                    var launchSingleTop = true
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
