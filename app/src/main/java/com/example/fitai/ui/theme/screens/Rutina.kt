@@ -16,10 +16,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,23 +27,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fitai.YouTubePlayer
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.extractYouTubeId
 
 @Composable
-fun Rutina(rutina: RutinaGenerada, navController: NavHostController) {
+fun Rutina(rutina: RutinaGenerada, navController: NavHostController ,  rutinaViewModel: RutinaViewModel = viewModel()) {
     //como tenemos que guardar cada uno de los checkbox, lo hacemos con un mapa
     //metemos el nombre del ejercicio y si esta hecho o no
-    val estadoHecho = remember {
-        mutableStateMapOf<String, Boolean>().apply {
-            rutina.ejercicios.forEach { ejercicio ->
-                put(ejercicio.ejercicio.nombre_legible, false)
-            }
+
+    if (rutinaViewModel.estadoHecho.isEmpty()) {
+        rutina.ejercicios.forEach {
+            rutinaViewModel.estadoHecho[it.ejercicio.nombre_legible] = false
         }
     }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -87,14 +85,18 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController) {
                            modifier = Modifier.weight(1f)
                        )
                         Checkbox(
-                            checked = estadoHecho[ejercicio.ejercicio.nombre_legible] ?: false,
-                            onCheckedChange = { estadoHecho[ejercicio.ejercicio.nombre_legible] = it }
+                            checked = rutinaViewModel.estadoHecho[ejercicio.ejercicio.nombre_legible] ?: false,
+                            onCheckedChange = {
+                                rutinaViewModel.estadoHecho[ejercicio.ejercicio.nombre_legible] = it
+                            },
+                            colors = CheckboxDefaults.colors(Color(0xFFFF3C00))
                         )
                         Text(
-                            text = if (estadoHecho[ejercicio.ejercicio.nombre_legible] == true) "Done" else "Do",
-                            color = if (estadoHecho[ejercicio.ejercicio.nombre_legible] == true) Color.Green else Color.Red,
+                            text = if (rutinaViewModel.estadoHecho[ejercicio.ejercicio.nombre_legible] == true) "Done" else "Do",
+                            color = if (rutinaViewModel.estadoHecho[ejercicio.ejercicio.nombre_legible] == true) Color.Green else Color.Red,
                             style = TextStyle(fontWeight = FontWeight.Bold)
                         )
+
                     }
 
                     Text("${ejercicio.series} x ${ejercicio.repeticiones} reps")
@@ -127,6 +129,7 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text("Finalizar rutina", color = Color.White)
+
             }
         }
     }

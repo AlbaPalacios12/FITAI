@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fitai.data.model.Feedback
 import com.example.fitai.data.model.RutinaGenerada
@@ -28,9 +29,13 @@ import com.google.firebase.firestore.firestore
 fun PantallaFeedback(
     usuario: Usuario,
     rutina: RutinaGenerada,
-    ejerciciosHechos: Map<String, Boolean>,
-    navController: NavHostController
+    navController: NavHostController,
+    rutinaViewModel: RutinaViewModel = viewModel()
 ) {
+
+    val ejerciciosHechos = rutinaViewModel.estadoHecho.toMap()
+    Log.d("DEBUG", "EjerciciosHechos contiene: $ejerciciosHechos")
+
     var fatiga by remember { mutableStateOf(3f) }
     var dificultad by remember { mutableStateOf(3f) }
 
@@ -48,6 +53,7 @@ fun PantallaFeedback(
 
         Button(
             onClick = {
+
                 //creamos el objeto feedback
                 val feedback = Feedback(
                     userId = usuario.id,
@@ -57,6 +63,7 @@ fun PantallaFeedback(
                     dificultad = dificultad.toInt(),
                     rutinaId = rutina.id
                 )
+                Log.d("DEBUG", "Feedback completo: $feedback")
                 // y lo subimos a la bd
                 Firebase.firestore.collection("feedback")
                     .add(feedback) // añadimos el objeto
@@ -67,6 +74,7 @@ fun PantallaFeedback(
                         Log.e("Firebase", "Error al guardar usuario", it)
                     }
 
+                navController.navigate("finalizado_feedback")
             },
             modifier = Modifier.fillMaxWidth()
         ) {

@@ -4,21 +4,32 @@ import RutinaGenerador
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -43,22 +54,58 @@ fun PantallaMenu(
     ejercicios: List<Ejercicio>,
     usuario: Usuario,
     nombreUsuario: String,
-    onRutinaGenerada: (RutinaGenerada) -> Unit
+    onRutinaGenerada: (RutinaGenerada) -> Unit,
+    onCerrarSesion: () -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+
     FitAITheme {
         Scaffold { innerPadding ->
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .padding(16.dp)
-            ) {
-                Text(
-                    text = "Hola, $nombreUsuario 👋",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+            )
+
+            {
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                {
+                    Text(
+                        text = "Hola, $nombreUsuario 👋",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    IconButton (onClick =  {showDialog = true }) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión")
+                    }
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false }, //para que se cierre
+                            title = { Text("Cerrar sesion") },
+                            text = { Text("¿Estas seguro de que quieres cerrar sesion?") },
+                            confirmButton = {
+                                Button(onClick = {
+                                    showDialog = false
+                                    onCerrarSesion() //función que se pasa para cerrar sesion
+                                }) {
+                                    Text("Si")
+                                }
+                            },
+                            dismissButton = {
+                                Button(onClick = { showDialog = false }) {
+                                    Text("Cancelar")
+                                }
+                            }
+                        )
+                    }
+                }
 
                 Text(
                     text = "Hoy es ${obtenerFechaActual()}",
