@@ -36,7 +36,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.fitai.data.model.Ejercicio
+import com.example.fitai.data.model.Feedback
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
 import com.example.fitai.grupoMuscularDelDia
@@ -55,7 +57,8 @@ fun PantallaMenu(
     usuario: Usuario,
     nombreUsuario: String,
     onRutinaGenerada: (RutinaGenerada) -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    navController: NavController
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -114,28 +117,49 @@ fun PantallaMenu(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 val grupoHoy = grupoMuscularDelDia()
+                Log.d("DEBUG", "Grupo muscular hoy: $grupoHoy") // Verifica que no sea null
+
                 Button(
                     onClick = {
                         if (grupoHoy != null) {
-                            val rutina = RutinaGenerador.generarRutinaInicial(
-                                ejercicios = ejercicios,
-                                grupoObjetivo = grupoHoy,
-                                tiempoDisponible = usuario.tiempo,
-                                nivel = usuario.nivel,
-                                pesoUsuario = usuario.peso
-                            )
-                            onRutinaGenerada(rutina)
-                            Firebase.firestore.collection("rutina")
-                                .add(mapOf(
-                                    "usuarioId" to usuario.id,
-                                    "rutina_diaria" to rutina
-                                ))
-                                .addOnSuccessListener {
-                                    Log.d("Firebase", "Rutina guardada correctamente")
-                                }
-                                .addOnFailureListener {
-                                    Log.e("Firebase", "Error al guardar la rutina", it)
-                                }
+                            val feedbackRef = Firebase.firestore.collection("feedback")
+                                .whereEqualTo("userId", usuario.id)
+                                .limit(1)
+
+                            feedbackRef.get().addOnSuccessListener { snapshot ->
+                                val feedback =
+                                    snapshot.documents.firstOrNull()?.toObject(Feedback::class.java)
+
+                                val fatiga = feedback?.fatiga ?: 5 // Valor medio por defecto
+                                val dificultad = feedback?.dificultad ?: 5
+
+                                val rutina = RutinaGenerador.generarRutinaInicial(
+                                    context = navController.context,
+                                    ejercicios = ejercicios,
+                                    grupoObjetivo = grupoHoy,
+                                    tiempoDisponible = usuario.tiempo,
+                                    nivel = usuario.nivel,
+                                    pesoUsuario = usuario.peso,
+                                    edad = usuario.edad,
+                                    sexo = if (usuario.sexo == "Masculino") 1 else 0,
+                                    fatiga = fatiga,
+                                    dificultad = dificultad
+                                )
+                                onRutinaGenerada(rutina)
+                                Firebase.firestore.collection("rutina")
+                                    .add(
+                                        mapOf(
+                                            "usuarioId" to usuario.id,
+                                            "rutina_diaria" to rutina
+                                        )
+                                    )
+                                    .addOnSuccessListener {
+                                        Log.d("Firebase", "Rutina guardada correctamente")
+                                    }
+                                    .addOnFailureListener {
+                                        Log.e("Firebase", "Error al guardar la rutina", it)
+                                    }
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -143,6 +167,7 @@ fun PantallaMenu(
                         disabledContainerColor = Color.Gray.copy(alpha = 0.5f)
                     ),
                     enabled = grupoHoy != null
+
                 ) {
                     Text(
                         text = if (grupoHoy != null) {
@@ -191,10 +216,15 @@ fun PantallaMenu(
                         }
                     }
                 }
+                Button(onClick = {
+                    navController.navigate("historial")
+                }) {
+                    Text("Historial de Rutinas")
+                }
+            }
             }
         }
     }
-}
 
 fun obtenerFechaActual(): String {
     val formatter = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
