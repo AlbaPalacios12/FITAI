@@ -63,7 +63,7 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
     ) {
         Text(
             "Completa tus datos",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = Color(0xFFFF3C00)
         )
 

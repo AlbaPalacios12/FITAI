@@ -71,5 +71,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    implementation ("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
 
 }

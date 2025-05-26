@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fitai.YouTubePlayer
@@ -51,7 +51,7 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController ,  rutinaVie
 
     ) {
         item {
-            Text("Tu rutina", style =TextStyle(fontSize = 32.sp),
+            Text("Tu rutina",  style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color(0xFFFF3C00)
             )
 
@@ -121,12 +121,14 @@ fun Rutina(rutina: RutinaGenerada, navController: NavHostController ,  rutinaVie
                 }
             }
         item{
-            Button(
+            Button( colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF3C00),
+                contentColor = Color.White),
+
                 onClick = {
                     navController.navigate("feedback")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text("Finalizar rutina", color = Color.White)
 

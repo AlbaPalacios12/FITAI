@@ -7,4 +7,6 @@ data class Feedback (
     val fatiga: Int,
     val dificultad: Int,
     val rutinaId: String
-)
+){
+    constructor() : this("", 0L, emptyMap(), 0, 0, "")
+}

@@ -1,24 +1,36 @@
 package com.example.fitai.ui.theme.screens
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.fitai.R
 import com.example.fitai.data.model.Feedback
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
@@ -42,18 +54,79 @@ fun PantallaFeedback(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(Color.DarkGray) //antes que el padding porque sino sale un margen blanco
+            .padding(30.dp),
+
+        verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
-        Text("¿Cual es tu nivel de fatiga?", style = MaterialTheme.typography.titleMedium)
-        Slider(value = fatiga, onValueChange = { fatiga = it }, valueRange = 1f..5f)
+        Text("Sensaciones",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color(0xFFFF3C00))
 
-        Text("¿Te ha parecido dificil la rutina?", style = MaterialTheme.typography.titleMedium)
-        Slider(value = dificultad, onValueChange = { dificultad = it }, valueRange = 1f..5f)
+        //NO SE HA PUESTO EN EL MEDIO
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.sensaciones),
+                contentDescription = "Sensaciones",
+                modifier = Modifier.fillMaxWidth(0.5f) // Opcional: ajusta el tamaño de la imagen
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Box {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Agrega espacio entre elementos
+            )
+            {
+                Text(
+                    "¿Cual es tu nivel de fatiga?",
+                    style = MaterialTheme.typography.titleMedium, color = Color.White
+                )
+                Slider(
+                    value = fatiga,
+                    onValueChange = { fatiga = it },
+                    valueRange = 1f..5f,
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFFFF3C00),
+                        activeTrackColor = Color(0xFFFF3C00)
+                    )
+                )
+                Text("Nivel de fatiga: ${fatiga.toInt()}", color = Color.White)
+            }
+        }
 
+
+        Box {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Agrega espacio entre elementos
+            ) {
+                Text(
+                    "¿Te ha parecido dificil la rutina?",
+                    style = MaterialTheme.typography.titleMedium, color = Color.White
+                )
+                Slider(
+                    value = dificultad,
+                    onValueChange = { dificultad = it },
+                    valueRange = 1f..5f,
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFFFF3C00),
+                        activeTrackColor = Color(0xFFFF3C00)
+                    )
+                )
+                Text("Nivel de dificultad: ${dificultad.toInt()}", color = Color.White)
+
+            }
+        }
+
+        Spacer(modifier = Modifier.height(35.dp))
         Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF3C00),
+                contentColor = Color.White,
+                ),
             onClick = {
-
                 //creamos el objeto feedback
                 val feedback = Feedback(
                     userId = usuario.id,
@@ -74,7 +147,7 @@ fun PantallaFeedback(
                         Log.e("Firebase", "Error al guardar usuario", it)
                     }
 
-                navController.navigate("finalizado_feedback")
+                navController.navigate("menu")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
