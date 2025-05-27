@@ -132,7 +132,7 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
         // Fisico
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 Modifier.padding(16.dp),
@@ -171,7 +171,7 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
         // Objetivo
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 Modifier.padding(16.dp),

@@ -56,7 +56,7 @@ fun Historial(userId: String) {
             CircularProgressIndicator()
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp).background(Color.DarkGray)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().background(Color.DarkGray).padding(16.dp)) {
             items(historial) { feedback ->
                 RutinaCard(feedback)
             }
@@ -72,6 +72,7 @@ fun RutinaCard(feedback: Feedback) {
     }
 
     Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
@@ -80,7 +81,7 @@ fun RutinaCard(feedback: Feedback) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("📅 Fecha: $fechaFormateada", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("🆔 Rutina ID: ${feedback.rutinaId}", style = MaterialTheme.typography.bodyMedium)
+            //Text("🆔 Rutina ID: ${feedback.rutinaId}", style = MaterialTheme.typography.bodyMedium)
             Text(
                 "✅ Ejercicios hechos: ${feedback.ejerciciosHechos.count { it.value }} de ${feedback.ejerciciosHechos.size}",
                 style = MaterialTheme.typography.bodyMedium
