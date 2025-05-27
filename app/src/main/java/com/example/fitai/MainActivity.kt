@@ -1,5 +1,6 @@
 package com.example.fitai
 
+import Historial
 import Registro
 import android.os.Build
 import android.os.Bundle
@@ -137,6 +138,11 @@ class MainActivity : ComponentActivity() {
                         rutinaViewModel = rutinaViewModel
                     )
                 }
+                composable("historial") {
+                    //un usuario registrado debe tener un id
+                    Historial(userId = usuarioRegistrado?.id ?: "") //MIIRAR ESTO
+                }
+
             }
         }
     }

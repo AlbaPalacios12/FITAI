@@ -1,5 +1,6 @@
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,22 +23,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.fitai.data.model.Feedback
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
-fun Historial(userId: String, navController: NavController) {
+fun Historial(userId: String) {
     var historial by remember { mutableStateOf<List<Feedback>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
 
     // Cargar datos de Firestore al entrar en la pantalla
     LaunchedEffect(userId) {
         FirebaseFirestore.getInstance()
-            .collection("feedbacks")
+            .collection("feedback")
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { resultado ->
@@ -55,7 +56,7 @@ fun Historial(userId: String, navController: NavController) {
             CircularProgressIndicator()
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp).background(Color.DarkGray)) {
             items(historial) { feedback ->
                 RutinaCard(feedback)
             }
