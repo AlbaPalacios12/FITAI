@@ -4,6 +4,7 @@ import Historial
 import Registro
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -20,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fitai.data.model.Ejercicio
 import com.example.fitai.data.model.RutinaGenerada
 import com.example.fitai.data.model.Usuario
+import com.example.fitai.ui.theme.screens.Credenciales
 import com.example.fitai.ui.theme.screens.PantallaBienvenida
 import com.example.fitai.ui.theme.screens.PantallaFeedback
 import com.example.fitai.ui.theme.screens.PantallaMenu
@@ -27,6 +29,7 @@ import com.example.fitai.ui.theme.screens.Rutina
 import com.example.fitai.ui.theme.screens.RutinaViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +43,8 @@ class MainActivity : ComponentActivity() {
             var usuarioRegistrado by remember { mutableStateOf<Usuario?>(null) }
             var rutinaGenerada by remember { mutableStateOf<RutinaGenerada?>(null) }
             var ejercicios by remember { mutableStateOf<List<Ejercicio>>(emptyList()) }
+            var isLoading by remember { mutableStateOf(true) }
+
             val rutinaViewModel: RutinaViewModel = viewModel()
 
             // Cargar datos iniciales
@@ -51,104 +56,127 @@ class MainActivity : ComponentActivity() {
                     .addOnSuccessListener { ejercicios = it.toObjects(Ejercicio::class.java) }
 
                 if (idUsuario != null) {
-                    Firebase.firestore.collection("usuarios")
-                        .whereEqualTo("id", idUsuario)
-                        .get()
-                        .addOnSuccessListener { result ->
-                            usuarioRegistrado = result.documents[0].toObject(Usuario::class.java)
+                    Firebase.firestore.collection("usuarios").document(idUsuario).get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                usuarioRegistrado = document.toObject(Usuario::class.java)
+                            }
+                            isLoading = false
                         }
+                        .addOnFailureListener {
+                            Log.e("MainActivity", "Error al obtener los datos del usuario", it)
+                        }
+                } else {
+                    isLoading = false
                 }
             }
 
-            NavHost(navController = navController, startDestination = "bienvenida") {
-                // Pantalla Bienvenida
-                composable("bienvenida") {
-                    if (usuarioRegistrado != null) {
-                        LaunchedEffect(Unit) {
-                            navController.navigate("menu") { popUpTo("bienvenida") { inclusive = true } }
-                        }
-                    }
-                    PantallaBienvenida(navController)
-                }
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else {
+                NavHost(navController = navController, startDestination = "bienvenida") {
+                    // Pantalla Bienvenida con Login integrado
+                    composable("bienvenida") {
+                        PantallaBienvenida(
+                            navController = navController,
+                            onLoginSuccess = { userId ->
+                                Firebase.firestore.collection("usuarios").document(userId).get()
+                                    .addOnSuccessListener { doc ->
+                                        val datosUsuario = doc.toObject(Usuario::class.java)
+                                        usuarioRegistrado = datosUsuario
 
-                // Pantalla Registro
-                composable("registro") {
-                    Registro { datosUsuario ->
-                        Firebase.firestore.collection("usuarios").add(datosUsuario)
-                            .addOnSuccessListener {
-                                usuarioRegistrado = datosUsuario
-                                getSharedPreferences("Sesion", MODE_PRIVATE).edit().apply {
-                                    putString("idUsuario", datosUsuario.id)
-                                    putString("nombreUsuario", datosUsuario.nombre)
-                                    apply()
-                                }
-                                navController.navigate("menu") { popUpTo("bienvenida") }
-                            }
-                    }
-                }
-
-                // Pantalla Menú Principal
-                composable("menu") {
-                    if (usuarioRegistrado == null) {
-                        // Redirigir si no hay usuario
-                        LaunchedEffect(Unit) {
-                            navController.navigate("bienvenida") { popUpTo("menu") { inclusive = true } }
-                        }
-                        CircularProgressIndicator()
-                    } else {
-                        PantallaMenu(
-                            ejercicios = ejercicios,
-                            usuario = usuarioRegistrado!!,
-                            nombreUsuario = usuarioRegistrado!!.nombre,
-                            onRutinaGenerada = { nuevaRutina ->
-                                rutinaGenerada = nuevaRutina
-                                navController.navigate("rutina")
+                                        getSharedPreferences("Sesion", MODE_PRIVATE).edit().apply {
+                                            putString("idUsuario", userId)
+                                            putString("nombreUsuario", datosUsuario?.nombre)
+                                            apply()
+                                        }
+                                        navController.navigate("menu")
+                                    }
                             },
-                            onCerrarSesion = {
-                                // Limpiar datos y redirigir
-                                usuarioRegistrado = null
-                                rutinaGenerada = null
-                                getSharedPreferences("Sesion", MODE_PRIVATE).edit().clear().apply()
-                                navController.navigate("bienvenida") { popUpTo("menu") { inclusive = true } }
-                            },
-                            navController = navController
+                            onGoToRegister = { navController.navigate("credenciales") }
                         )
                     }
-                }
 
-                // Pantalla Rutina
-                composable("rutina") {
-                    if (rutinaGenerada == null) {
-                        LaunchedEffect(Unit) {
-                            navController.navigate("menu") { popUpTo("rutina") { inclusive = true } }
+                    composable("credenciales") {
+                        Credenciales(
+                            onRegisterSuccess = {
+                                navController.navigate("registro")
+                            }
+                        )
+                    }
+
+                    composable("registro") {
+                        Registro { datosUsuario ->
+                            val userId = Firebase.auth.currentUser?.uid ?: return@Registro
+
+                            val usuarioConId = datosUsuario.copy(id = userId)
+                            Firebase.firestore.collection("usuarios").document(userId).set(usuarioConId)
+                                .addOnSuccessListener {
+                                    usuarioRegistrado = usuarioConId
+                                    getSharedPreferences("Sesion", MODE_PRIVATE).edit().apply {
+                                        putString("idUsuario", userId)
+                                        putString("nombreUsuario", usuarioConId.nombre)
+                                        apply()
+                                    }
+                                    navController.navigate("menu")
+                                }
                         }
-                        CircularProgressIndicator()
-                    } else {
-                        Rutina(rutinaGenerada!!, navController, rutinaViewModel)
+                    }
+
+                    composable("menu") {
+                        if (usuarioRegistrado == null) {
+                            LaunchedEffect(Unit) {
+                                navController.navigate("bienvenida") { popUpTo("menu") { inclusive = true } }
+                            }
+                            CircularProgressIndicator()
+                        } else {
+                            PantallaMenu(
+                                ejercicios = ejercicios,
+                                usuario = usuarioRegistrado!!,
+                                nombreUsuario = usuarioRegistrado!!.nombre,
+                                onRutinaGenerada = { nuevaRutina ->
+                                    rutinaGenerada = nuevaRutina
+                                    navController.navigate("rutina")
+                                },
+                                onCerrarSesion = {
+                                    usuarioRegistrado = null
+                                    rutinaGenerada = null
+                                    getSharedPreferences("Sesion", MODE_PRIVATE).edit().clear().apply()
+                                    navController.navigate("bienvenida") { popUpTo("menu") { inclusive = true } }
+                                },
+                                navController = navController
+                            )
+                        }
+                    }
+
+                    composable("rutina") {
+                        if (rutinaGenerada == null) {
+                            LaunchedEffect(Unit) {
+                                navController.navigate("menu") { popUpTo("rutina") { inclusive = true } }
+                            }
+                            CircularProgressIndicator()
+                        } else {
+                            Rutina(rutinaGenerada!!, navController, rutinaViewModel)
+                        }
+                    }
+
+                    composable("feedback") {
+                        val usuario = usuarioRegistrado ?: return@composable
+                        val rutina = rutinaGenerada ?: return@composable
+
+                        PantallaFeedback(
+                            usuario = usuario,
+                            rutina = rutina,
+                            navController = navController,
+                            rutinaViewModel = rutinaViewModel
+                        )
+                    }
+
+                    composable("historial") {
+                        Historial(userId = usuarioRegistrado?.id ?: "")
                     }
                 }
-                composable("feedback") {
-                    val usuario = usuarioRegistrado ?: return@composable
-                    val rutina = rutinaGenerada ?: return@composable
-
-                    PantallaFeedback(
-                        usuario = usuario,
-                        rutina = rutina,
-                        navController = navController,
-                        rutinaViewModel = rutinaViewModel
-                    )
-                }
-                composable("historial") {
-                    //un usuario registrado debe tener un id
-                    Historial(userId = usuarioRegistrado?.id ?: "") //MIIRAR ESTO
-                }
-
             }
         }
     }
 }
-
-
-
-
-

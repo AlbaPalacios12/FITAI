@@ -35,7 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fitai.data.model.Usuario
-import java.util.UUID
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun Registro(onFinalizar: (Usuario) -> Unit) {
@@ -211,8 +212,9 @@ fun Registro(onFinalizar: (Usuario) -> Unit) {
                 if (nombre.isBlank()) {
                     error = true
                 } else {
+                    val userId = Firebase.auth.currentUser?.uid ?: return@Button
                     val usuario = Usuario(
-                        id = UUID.randomUUID().toString(), //no estaba generando un id para el user
+                        id = userId, //esto luego me permite que los id coincidan cuando lo busco con firebase
                         nombre = nombre,
                         edad = edad.toInt(),
                         peso = peso.toInt(),
