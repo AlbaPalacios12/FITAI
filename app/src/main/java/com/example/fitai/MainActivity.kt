@@ -32,6 +32,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
+
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +76,6 @@ class MainActivity : ComponentActivity() {
                 CircularProgressIndicator()
             } else {
                 NavHost(navController = navController, startDestination = "bienvenida") {
-                    // Pantalla Bienvenida con Login integrado
                     composable("bienvenida") {
                         PantallaBienvenida(
                             navController = navController,
@@ -135,6 +135,12 @@ class MainActivity : ComponentActivity() {
                                 usuario = usuarioRegistrado!!,
                                 nombreUsuario = usuarioRegistrado!!.nombre,
                                 onRutinaGenerada = { nuevaRutina ->
+                                    //limpiamos el viewModel
+                                    rutinaViewModel.estadoHecho.clear()
+                                    nuevaRutina.ejercicios.forEach {
+                                        rutinaViewModel.estadoHecho[it.ejercicio.nombre_legible] = false
+                                    }
+                                    //asignamos rutina
                                     rutinaGenerada = nuevaRutina
                                     navController.navigate("rutina")
                                 },

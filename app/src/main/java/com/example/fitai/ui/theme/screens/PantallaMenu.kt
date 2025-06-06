@@ -129,10 +129,9 @@ fun PantallaMenu(
                                 .limit(1)
 
                             feedbackRef.get().addOnSuccessListener { snapshot ->
-                                val feedback =
-                                    snapshot.documents.firstOrNull()?.toObject(Feedback::class.java)
+                                val feedback = snapshot.documents.firstOrNull()?.toObject(Feedback::class.java)
 
-                                val fatiga = feedback?.fatiga ?: 5 // Valor medio por defecto
+                                val fatiga = feedback?.fatiga ?: 5
                                 val dificultad = feedback?.dificultad ?: 5
 
                                 val rutina = RutinaGenerador.generarRutinaInicial(

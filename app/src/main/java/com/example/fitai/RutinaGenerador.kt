@@ -60,8 +60,10 @@ object RutinaGenerador {
                 fatiga.toFloat(),
                 dificultad.toFloat(),
             ) + oneHotGrupo
-
+            Log.d("IA", "Entrada del modelo: ${entrada.contentToString()}")
             val accion = modeloIA.predecir(entrada)
+
+            Log.d("IA", "Resultado del modelo: $accion")
             val carga = calcularCargaInicial(ejercicio, nivel, pesoUsuario, accion)
 
             EjercicioRutina(ejercicio = ejercicio, cargaKg = carga)

@@ -35,7 +35,7 @@ fun Historial(userId: String) {
     var historial by remember { mutableStateOf<List<Feedback>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
 
-    // Cargar datos de Firestore al entrar en la pantalla
+    // carga los datos al entrar en la pantalla
     LaunchedEffect(userId) {
         FirebaseFirestore.getInstance()
             .collection("feedback")

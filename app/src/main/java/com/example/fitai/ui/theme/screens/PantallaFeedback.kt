@@ -71,13 +71,13 @@ fun PantallaFeedback(
             Image(
                 painter = painterResource(id = R.drawable.sensaciones),
                 contentDescription = "Sensaciones",
-                modifier = Modifier.fillMaxWidth(0.5f) // Opcional: ajusta el tamaño de la imagen
+                modifier = Modifier.fillMaxWidth(0.5f)
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         Box {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Agrega espacio entre elementos
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             )
             {
                 Text(
@@ -100,7 +100,7 @@ fun PantallaFeedback(
 
         Box {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Agrega espacio entre elementos
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     "¿Te ha parecido dificil la rutina?",
